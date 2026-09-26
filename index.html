@@ -1,1 +1,253 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment By Uses</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- QRCode.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .payment-card {
+      background: #ffffff;
+      max-width: 400px;
+      width: 100%;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      text-align: center;
+      border: 1px solid #e5e7eb;
+    }
+
+    /* Top Header */
+    .header {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 24px 20px;
+    }
+
+    .header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .amount-badge {
+      font-size: 34px;
+      font-weight: 700;
+      color: #10b981;
+      margin-top: 6px;
+    }
+
+    .order-info {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 6px;
+      word-break: break-all;
+    }
+
+    /* Body Container */
+    .card-body {
+      padding: 24px 20px;
+    }
+
+    /* QR Code Display Box */
+    .qr-container {
+      background: #ffffff;
+      display: inline-block;
+      padding: 14px;
+      border-radius: 16px;
+      border: 2px dashed #cbd5e1;
+      margin-bottom: 12px;
+    }
+
+    #qrcode img {
+      margin: 0 auto;
+      border-radius: 8px;
+    }
+
+    .scan-text {
+      font-size: 14px;
+      color: #475569;
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
+
+    /* Action Buttons */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      margin-bottom: 12px;
+    }
+
+    /* Mobile Direct Pay Button */
+    .btn-upi {
+      background-color: #3b82f6;
+      color: #ffffff;
+    }
+    .btn-upi:hover {
+      background-color: #2563eb;
+    }
+
+    /* WhatsApp Button */
+    .btn-whatsapp {
+      background-color: #25D366;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+    }
+    .btn-whatsapp:hover {
+      background-color: #20bd5a;
+    }
+
+    .divider {
+      position: relative;
+      margin: 18px 0;
+      text-align: center;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    .divider span {
+      position: relative;
+      background: #ffffff;
+      padding: 0 10px;
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="payment-card">
+    <!-- Header -->
+    <div class="header">
+      <h2 id="payee-name">IX Gamer</h2>
+      <div class="amount-badge">₹<span id="pay-amount">15.00</span></div>
+      <div class="order-info">অর্ডার আইডি: <strong id="display-order-id" style="color: #f8fafc;">...</strong></div>
+    </div>
+
+    <!-- Body -->
+    <div class="card-body">
+      <!-- QR Box -->
+      <div class="qr-container">
+        <div id="qrcode"></div>
+      </div>
+
+      <p class="scan-text">যেকোনো UPI অ্যাপ দিয়ে স্ক্যান করুন</p>
+
+      <!-- Pay directly on mobile button -->
+      <a href="#" id="direct-pay-btn" class="btn btn-upi">
+        <i class="fa-solid fa-bolt"></i> সরাসরি UPI অ্যাপ দিয়ে পে করুন
+      </a>
+
+      <div class="divider">
+        <span>পেমেন্ট হয়ে গেলে</span>
+      </div>
+
+      <!-- WhatsApp Share Button -->
+      <a href="#" id="whatsapp-btn" target="_blank" class="btn btn-whatsapp">
+        <i class="fa-brands fa-whatsapp fa-xl"></i> শেয়ার স্ক্রিনশট (WhatsApp)
+      </a>
+
+      <p class="footer-note">
+        পেমেন্ট সফল হওয়ার পর স্ক্রিনশটটি WhatsApp-এ পাঠান।
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    //              CONFIGURATIONS
+    // ==========================================
+    const WHATSAPP_NUMBER = "917811829907"; // আপনার দেওয়া নাম্বার
+
+    const PAYMENT_CONFIG = {
+      upiId: "rkodali137@okicici",
+      payeeName: "IX Gamer",
+      accountId: "uGICAgIDX0cW6YA",
+      amount: "15.00",
+      currency: "INR",
+      // অর্ডার আইডি 'HC' দিয়ে শুরু হবে এবং প্রতিবার ইউনিক হবে
+      orderId: "HC" + Date.now()
+    };
+
+    // ==========================================
+    //          DYNAMIC UPI URI GENERATOR
+    // ==========================================
+    const UPI_PAYMENT_URI = `upi://pay?pa=${encodeURIComponent(PAYMENT_CONFIG.upiId)}&pn=${encodeURIComponent(PAYMENT_CONFIG.payeeName)}&aid=${encodeURIComponent(PAYMENT_CONFIG.accountId)}&am=${encodeURIComponent(PAYMENT_CONFIG.amount)}&cu=${encodeURIComponent(PAYMENT_CONFIG.currency)}&tn=${encodeURIComponent(PAYMENT_CONFIG.orderId)}`;
+
+    // DOM-এ ডেটা সেট করা
+    document.getElementById("payee-name").innerText = PAYMENT_CONFIG.payeeName;
+    document.getElementById("pay-amount").innerText = PAYMENT_CONFIG.amount;
+    document.getElementById("display-order-id").innerText = PAYMENT_CONFIG.orderId;
+    
+    // সরাসরি মোবাইলের UPI অ্যাপ খোলার লিংক
+    document.getElementById("direct-pay-btn").href = UPI_PAYMENT_URI;
+
+    // ==========================================
+    //             QR CODE RENDER
+    // ==========================================
+    new QRCode(document.getElementById("qrcode"), {
+      text: UPI_PAYMENT_URI,
+      width: 210,
+      height: 210,
+      colorDark: "#0f172a",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    // ==========================================
+    //       WHATSAPP LINK WITH PRE-FILLED TEXT
+    // ==========================================
+    const message = `হ্যালো IX Gamer,\nআমি ₹${PAYMENT_CONFIG.amount} টাকা পেমেন্ট সম্পন্ন করেছি।\n\n📌 অর্ডার আইডি: ${PAYMENT_CONFIG.orderId}\n\nআমি নিচে পেমেন্টের স্ক্রিনশট দিচ্ছি, দয়া করে চেক করুন।`;
+    
+    document.getElementById("whatsapp-btn").href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  </script>
+</body>
+</html>
