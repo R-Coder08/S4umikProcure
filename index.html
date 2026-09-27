@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Gateway System - IX Gamer</title>
+  <title>Payment Gateway - IX Gamer</title>
   
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- QRCode.js Library -->
+  <!-- QRCode.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
@@ -29,10 +29,10 @@
 
     .card {
       background: #ffffff;
-      max-width: 440px;
+      max-width: 420px;
       width: 100%;
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
       overflow: hidden;
       border: 1px solid #e2e8f0;
     }
@@ -40,13 +40,14 @@
     .header {
       background: #0f172a;
       color: #ffffff;
-      padding: 22px 20px;
+      padding: 24px 20px;
       text-align: center;
     }
 
     .header h2 {
       font-size: 20px;
       font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     .header p {
@@ -59,7 +60,7 @@
       padding: 24px 20px;
     }
 
-    /* Form Inputs */
+    /* Form Fields for Maker */
     .form-group {
       margin-bottom: 16px;
       text-align: left;
@@ -78,7 +79,7 @@
       padding: 12px;
       border: 1px solid #cbd5e1;
       border-radius: 10px;
-      font-size: 14px;
+      font-size: 15px;
       outline: none;
       transition: 0.2s;
     }
@@ -88,7 +89,7 @@
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
     }
 
-    /* Buttons */
+    /* Action Buttons */
     .btn {
       display: flex;
       align-items: center;
@@ -109,17 +110,18 @@
     .btn-primary { background: #3b82f6; color: #fff; }
     .btn-primary:hover { background: #2563eb; }
 
-    .btn-verify { background: #10b981; color: #fff; }
-    .btn-verify:hover { background: #059669; }
-
-    .btn-whatsapp { background: #25D366; color: #fff; }
+    .btn-whatsapp { 
+      background: #25D366; 
+      color: #fff; 
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+    }
     .btn-whatsapp:hover { background: #20bd5a; }
 
-    /* Result Box in Maker */
+    /* Result Box in Link Maker */
     .result-box {
       display: none;
       margin-top: 20px;
-      padding: 15px;
+      padding: 16px;
       background: #f8fafc;
       border: 1px dashed #3b82f6;
       border-radius: 12px;
@@ -134,10 +136,10 @@
 
     .link-display {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       background: #fff;
       border: 1px solid #cbd5e1;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 12px;
       color: #0f172a;
       word-break: break-all;
@@ -146,10 +148,10 @@
 
     /* Customer View Elements */
     .amount-badge {
-      font-size: 32px;
+      font-size: 34px;
       font-weight: 700;
       color: #10b981;
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
     .qr-container {
@@ -167,28 +169,42 @@
       margin-bottom: 12px;
     }
 
-    .success-alert {
-      display: none;
-      background: #ecfdf5;
-      border: 1px solid #a7f3d0;
-      color: #065f46;
-      padding: 12px;
-      border-radius: 10px;
-      margin-top: 15px;
-      font-size: 13px;
-      font-weight: 500;
+    .divider {
+      position: relative;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    .divider span {
+      position: relative;
+      background: #fff;
+      padding: 0 10px;
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
     }
   </style>
 </head>
 <body>
 
   <!-- ============================================== -->
-  <!--        ১. মেকার স্ক্রিন (ADMIN MAKER)           -->
+  <!--        ১. মেকার স্ক্রিন (ADMIN LINK MAKER)      -->
   <!-- ============================================== -->
   <div id="maker-card" class="card" style="display: none;">
     <div class="header">
       <h2>পেমেন্ট লিংক মেকার</h2>
-      <p>প্রোডাক্ট ও ফাইল সেট করে কাস্টমারের জন্য লিংক তৈরি করুন</p>
+      <p>প্রোডাক্টের নাম ও অ্যামাউন্ট দিয়ে লিংক তৈরি করুন</p>
     </div>
     <div class="body-content">
       <div class="form-group">
@@ -201,19 +217,14 @@
         <input type="number" id="maker-amount" value="15" placeholder="যেমন: 15">
       </div>
 
-      <div class="form-group">
-        <label>ফাইল সোর্স লিংক (Download File URL - SRC):</label>
-        <input type="url" id="maker-src" placeholder="https://example.com/file.zip">
-      </div>
-
       <button class="btn btn-primary" onclick="generatePaymentLink()">
         <i class="fa-solid fa-link"></i> পেমেন্ট লিংক তৈরি করুন
       </button>
 
-      <!-- ফলাফল দেখানোর বক্স -->
+      <!-- লিংক তৈরির ফলাফল -->
       <div id="result-box" class="result-box">
-        <p><strong>অর্ডার প্রিফিক্স:</strong> <span id="res-prefix"></span></p>
-        <p><strong>কাস্টমারের লিংক:</strong></p>
+        <p><strong>অর্ডার প্রিফিক্স:</strong> <span id="res-prefix" style="color: #2563eb; font-weight: bold;"></span></p>
+        <p><strong>শেয়ারেবল লিংক:</strong></p>
         <div id="generated-url" class="link-display"></div>
         <button class="btn btn-primary" style="padding: 10px; font-size: 13px;" onclick="copyLink()">
           <i class="fa-solid fa-copy"></i> লিংক কপি করুন
@@ -224,13 +235,13 @@
 
 
   <!-- ============================================== -->
-  <!--       ২. কাস্টমার স্ক্রিন (CUSTOMER PAYMENT)    -->
+  <!--      ২. কাস্টমার স্ক্রিন (CUSTOMER PAYMENT)     -->
   <!-- ============================================== -->
   <div id="payment-card" class="card" style="display: none; text-align: center;">
     <div class="header">
       <h2 id="cust-product-name">IX Gamer Payment</h2>
       <div class="amount-badge">₹<span id="cust-amount">0.00</span></div>
-      <p>অর্ডার আইডি: <strong id="cust-order-id" style="color:#fff;">...</strong></p>
+      <p style="margin-top: 6px;">অর্ডার আইডি: <strong id="cust-order-id" style="color:#fff;">...</strong></p>
     </div>
 
     <div class="body-content">
@@ -241,64 +252,62 @@
       <p class="scan-text">যেকোনো UPI (GPay, PhonePe, Paytm) দিয়ে স্ক্যান করুন</p>
 
       <!-- Pay directly on Mobile -->
-      <a href="#" id="direct-upi-btn" class="btn btn-primary" style="margin-bottom: 15px;">
-        <i class="fa-solid fa-bolt"></i> সরাসরি UPI অ্যাপে পে করুন
+      <a href="#" id="direct-upi-btn" class="btn btn-primary" style="margin-bottom: 12px;">
+        <i class="fa-solid fa-bolt"></i> সরাসরি UPI অ্যাপ দিয়ে পে করুন
       </a>
 
-      <!-- UTR Verification Box -->
-      <div class="form-group" style="background: #f8fafc; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0;">
-        <label for="utr-input">পেমেন্ট UTR / Ref No. বসান:</label>
-        <input type="text" id="utr-input" placeholder="১২ সংখ্যার UTR নম্বর" maxlength="22">
-        <button id="download-btn" class="btn btn-verify" onclick="verifyAndDownload()">
-          <i class="fa-solid fa-download"></i> ভেরিফাই ও ডাউনলোড করুন
-        </button>
-        <div id="success-box" class="success-alert">
-          <i class="fa-solid fa-circle-check"></i> সফল হয়েছে! ফাইল ডাউনলোড হচ্ছে...
-        </div>
+      <div class="divider">
+        <span>পেমেন্ট সফল হলে</span>
       </div>
 
       <!-- WhatsApp Button -->
       <a href="#" id="whatsapp-btn" target="_blank" class="btn btn-whatsapp">
-        <i class="fa-brands fa-whatsapp fa-xl"></i> স্ক্রিনশট পাঠান (WhatsApp)
+        <i class="fa-brands fa-whatsapp fa-xl"></i> শেয়ার স্ক্রিনশট (WhatsApp)
       </a>
+
+      <p style="font-size: 12px; color: #64748b; margin-top: 14px;">
+        টাকা পাঠানোর পর স্ক্রিনশটটি WhatsApp বাটনে ক্লিক করে পাঠিয়ে দিন।
+      </p>
     </div>
   </div>
 
   <script>
     // ==========================================
-    //           স্থির কনফিগারেশন
+    //           কনফিগারেশন
     // ==========================================
-    const WHATSAPP_NUMBER = "917811829907";
+    const WHATSAPP_NUMBER = "917811829907"; // আপনার নাম্বার
     const MERCHANT_CONFIG = {
       upiId: "rkodali137@okicici",
       payeeName: "IX Gamer",
       accountId: "uGICAgIDX0cW6YA"
     };
 
-    // URL প্যারামিটার চেক করা
+    // GitHub Pages পাথ স্বয়ংক্রিয়ভাবে নির্ধারণ করা
+    const CURRENT_PAGE_URL = window.location.origin + window.location.pathname;
+
+    // URL প্যারামিটার চেক
     const urlParams = new URLSearchParams(window.location.search);
     const paramProd = urlParams.get('p');   // Product Name
     const paramAmt  = urlParams.get('amt'); // Amount
     const paramOid  = urlParams.get('oid'); // Order ID
-    const paramSrc  = urlParams.get('src'); // File SRC
 
-    // কাস্টমার লিংকে ঢুকেছে নাকি অ্যাডমিন?
+    // কাস্টমার পেজ নাকি মেকার পেজ?
     if (paramAmt && paramOid) {
-      // কাস্টমার ভিউ দেখাও
+      // প্যারামিটার থাকলে কাস্টমার পেমেন্ট স্ক্রিন দেখাবে
       document.getElementById('payment-card').style.display = 'block';
-      loadCustomerView(paramProd, paramAmt, paramOid, paramSrc);
+      loadCustomerView(paramProd, paramAmt, paramOid);
     } else {
-      // মেকার ভিউ দেখাও
+      // কোনো প্যারামিটার না থাকলে মেকার স্ক্রিন দেখাবে
       document.getElementById('maker-card').style.display = 'block';
     }
 
     // ========================================================
-    //      অর্ডার আইডির প্রথম অক্ষর জেনারেটর (মেকার ফাংশন)
+    //      অর্ডার আইডির প্রথম অক্ষর বের করা (মেকার ফাংশন)
     // ========================================================
     function getPrefixFromName(productName) {
       const words = productName.trim().split(/\s+/);
       if (words.length >= 2) {
-        // প্রথম দুই শব্দের প্রথম অক্ষর (যেমন: House Chores -> HC)
+        // প্রথম দুটি শব্দের প্রথম অক্ষর (যেমন: House Chores -> HC)
         return (words[0][0] + words[1][0]).toUpperCase();
       } else if (words.length === 1 && words[0].length >= 2) {
         return words[0].substring(0, 2).toUpperCase();
@@ -306,100 +315,59 @@
       return "HC"; // ডিফল্ট
     }
 
-    // মেকার দিয়ে লিংক তৈরি
+    // পেমেন্ট লিংক তৈরি করা
     function generatePaymentLink() {
-      const prodName = document.getElementById('maker-product').value.trim() || "Item";
+      const prodName = document.getElementById('maker-product').value.trim() || "House Chores";
       const amount = document.getElementById('maker-amount').value.trim() || "15.00";
-      const srcUrl = document.getElementById('maker-src').value.trim() || "https://example.com/file.zip";
 
-      // প্রিফিক্স তৈরি (HC)
+      // প্রিফিক্স নেওয়া (HC) এবং ইউনিক আইডি তৈরি (HC + Timestamp)
       const prefix = getPrefixFromName(prodName);
-      // ইউনিক অর্ডার আইডি (HC + Timestamp)
       const orderId = prefix + Date.now();
 
-      // লিংক গঠন
-      const baseUrl = window.location.origin + window.location.pathname;
-      const finalUrl = `${baseUrl}?p=${encodeURIComponent(prodName)}&amt=${encodeURIComponent(amount)}&oid=${encodeURIComponent(orderId)}&src=${encodeURIComponent(srcUrl)}`;
+      // GitHub Pages লিংক তৈরি করা
+      const finalUrl = `${CURRENT_PAGE_URL}?p=${encodeURIComponent(prodName)}&amt=${encodeURIComponent(amount)}&oid=${encodeURIComponent(orderId)}`;
 
-      // ইন্টারফেসে দেখানো
+      // স্ক্রিনে দেখানো
       document.getElementById('res-prefix').innerText = prefix + " (অর্ডার আইডি: " + orderId + ")";
       document.getElementById('generated-url').innerText = finalUrl;
       document.getElementById('result-box').style.display = 'block';
     }
 
+    // লিংক ক্লিপবোর্ডে কপি করা
     function copyLink() {
       const linkText = document.getElementById('generated-url').innerText;
       navigator.clipboard.writeText(linkText).then(() => {
-        alert("পেমেন্ট লিংক কপি করা হয়েছে!");
+        alert("কাস্টমারের পেমেন্ট লিংক সফলভাবে কপি করা হয়েছে!");
       });
     }
 
     // ========================================================
-    //             কাস্টমার ভিউ সেটআপ
+    //             কাস্টমার স্ক্রিন লোড করা
     // ========================================================
-    let currentSrc = "";
-    function loadCustomerView(product, amount, orderId, src) {
-      currentSrc = src;
-      document.getElementById('cust-product-name').innerText = product ? decodeURIComponent(product) : "IX Gamer";
+    function loadCustomerView(product, amount, orderId) {
+      const productName = product ? decodeURIComponent(product) : "IX Gamer";
+      document.getElementById('cust-product-name').innerText = productName;
       document.getElementById('cust-amount').innerText = parseFloat(amount).toFixed(2);
       document.getElementById('cust-order-id').innerText = orderId;
 
-      // UPI URI
+      // UPI পেমেন্ট URI
       const upiUri = `upi://pay?pa=${encodeURIComponent(MERCHANT_CONFIG.upiId)}&pn=${encodeURIComponent(MERCHANT_CONFIG.payeeName)}&aid=${encodeURIComponent(MERCHANT_CONFIG.accountId)}&am=${encodeURIComponent(amount)}&cu=INR&tn=${encodeURIComponent(orderId)}`;
 
-      // মোবাইলের জন্য সরাসরি পেমেন্ট বাটন
+      // মোবাইলের জন্য সরাসরি পেমেন্ট লিংক
       document.getElementById('direct-upi-btn').href = upiUri;
 
-      // QR Code তৈরি
+      // QR Code তৈরি (200x200)
       new QRCode(document.getElementById("qrcode"), {
         text: upiUri,
-        width: 190,
-        height: 190,
+        width: 200,
+        height: 200,
         colorDark: "#0f172a",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
       });
 
       // WhatsApp মেসেজ তৈরি
-      updateWhatsAppLink(orderId, amount, "");
-    }
-
-    // UTR ভেরিফিকেশন ও অটোমেটিক ডাউনলোড
-    function verifyAndDownload() {
-      const utr = document.getElementById('utr-input').value.trim();
-      const downloadBtn = document.getElementById('download-btn');
-      const successBox = document.getElementById('success-box');
-
-      if (utr.length < 8) {
-        alert("দয়া করে সঠিক ১২ সংখ্যার UTR নম্বর লিখুন!");
-        return;
-      }
-
-      downloadBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ভেরিফাই হচ্ছে...`;
-      downloadBtn.disabled = true;
-
-      setTimeout(() => {
-        downloadBtn.style.display = 'none';
-        successBox.style.display = 'block';
-
-        // ডাউনলোড ট্রিগার (SRC ফিল্ড থেকে)
-        if (currentSrc) {
-          const a = document.createElement('a');
-          a.href = currentSrc;
-          a.download = "";
-          a.target = "_blank";
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        }
-
-        // WhatsApp লিংক আপডেট UTR সহ
-        updateWhatsAppLink(paramOid, paramAmt, utr);
-      }, 1500);
-    }
-
-    function updateWhatsAppLink(oid, amt, utr) {
-      const msg = `হ্যালো IX Gamer,\nআমি ₹${amt} টাকা পেমেন্ট সম্পন্ন করেছি।\n\n📌 অর্ডার আইডি: ${oid}\n🔢 UTR/Ref No: ${utr || "পেমেন্ট সম্পন্ন"}\n\nআমি পেমেন্ট স্ক্রিনশট নিচে পাঠাচ্ছি।`;
+      const msg = `হ্যালো IX Gamer,\nআমি ₹${amount} টাকা পেমেন্ট করেছি।\n\n📦 প্রোডাক্ট: ${productName}\n📌 অর্ডার আইডি: ${orderId}\n\nআমি পেমেন্টের স্ক্রিনশট নিচে শেয়ার করছি, দয়া করে চেক করুন।`;
       document.getElementById('whatsapp-btn').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
     }
   </script>
