@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Bypass</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 32px 28px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
+
+    .action-btn {
+      background-color: #0f172a;
+      color: #ffffff;
+      border: none;
+      width: 100%;
+      padding: 13px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .action-btn:hover {
+      background-color: #1e293b;
+    }
+
+    .action-btn:active {
+      transform: scale(0.99);
+    }
+
+    .action-btn:disabled {
+      background-color: #cbd5e1;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .display-area {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .ip-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ip-box:hover {
+      border-color: #94a3b8;
+      background: #f1f5f9;
+    }
+
+    .ip-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      font-family: monospace;
+      letter-spacing: 0.5px;
+    }
+
+    .copy-hint {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .warning-text {
+      margin-top: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #ef4444;
+    }
+
+    .toast {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, top 0.2s ease;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      top: -48px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="toast" id="toast">Copied to clipboard</div>
+
+    <h2>My Address</h2>
+
+    <button class="action-btn" id="getIpBtn" onclick="getIP()">Show Your Address</button>
+
+    <div class="display-area" id="displayArea">
+      <div class="ip-box" onclick="copyIP()" title="Click to copy">
+        <span class="ip-value" id="ipValue">0.0.0.0</span>
+        <span class="copy-hint">Click to copy</span>
+      </div>
+      <div class="warning-text">Tap This 👆</div>
+    </div>
+  </div>
+
+  <script>
+    let fetchedIP = "";
+
+    async function getIP() {
+      const btn = document.getElementById('getIpBtn');
+      const displayArea = document.getElementById('displayArea');
+      const ipValue = document.getElementById('ipValue');
+
+      btn.disabled = true;
+      btn.innerText = "Fetching...";
+
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        
+        fetchedIP = data.ip;
+        ipValue.innerText = fetchedIP;
+        displayArea.style.display = 'block';
+      } catch (e) {
+        fetchedIP = "";
+        ipValue.innerText = "Error loading IP";
+        displayArea.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Show Your Address";
+      }
+    }
+
+    function copyIP() {
+      if (!fetchedIP) return;
+
+      navigator.clipboard.writeText(fetchedIP).then(() => {
+        showToast();
+      }).catch(() => {
+        const input = document.createElement("input");
+        input.value = fetchedIP;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+        showToast();
+      });
+    }
+
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('visible');
+      setTimeout(() => {
+        toast.classList.remove('visible');
+      }, 1800);
+    }
+  </script>
+
+</body>
+</html>
